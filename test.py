@@ -10,85 +10,88 @@ import json
 import asyncio
 from datetime import datetime, time as dt_time, timezone, timedelta
 import requests
+from const import click_config
+
+API_URL = 'http://localhost:8000'
 
 const_cities = {
     '1': {
-        'name': 'Moscow',
-        'StartField': 25,
+        'name': 'Москва',
+        'StartField': 0,
         'CurrentField': 0,
         'taken': False,
         'counter': 0
     },
     '1060': {
-        'name': 'Sochi',
+        'name': 'Сочи',
         'StartField': 15,
         'CurrentField': 0,
         'taken': False,
         'counter': 0
     },
-    # "17590": {
-    #     "name": "Семаранг",
-    #     'StartField': 300,
-    #     'CurrentField': 0,
-    #     'counter': 0,
-    #     'taken': False
-    # },
-    # "17591": {
-    #     "name": "Пхукет",
-    #     'StartField': 300,
-    #     'CurrentField': 0,
-    #     'counter': 0,
-    #     'taken': False
-    # },
-    # "17592": {
-    #     "name": "Пекалонган",
-    #     'StartField': 300,
-    #     'CurrentField': 0,
-    #     'counter': 0,
-    #     'taken': False
-    # },
-    # "17593": {
-    #     "name": "Денпасар",
-    #     'StartField': 300,
-    #     'CurrentField': 0,
-    #     'counter': 0,
-    #     'taken': False
-    # },
-    # "15552": {
-    #     "name": "Бангкок",
-    #     'StartField': 300,
-    #     'CurrentField': 0,
-    #     'counter': 0,
-    #     'taken': False
-    # },
-    # "8809": {
-    #     "name": "Дели",
-    #     'StartField': 300,
-    #     'CurrentField': 0,
-    #     'counter': 0,
-    #     'taken': False
-    # },
-    # "8828": {
-    #     "name": "Лудхияна",
-    #     'StartField': 300,
-    #     'CurrentField': 0,
-    #     'counter': 0,
-    #     'taken': False
-    # },
-    # "8844": {
-    #     "name": "Джакарта",
-    #     'StartField': 300,
-    #     'CurrentField': 0,
-    #     'counter': 0,
-    #     'taken': False
-    # },
-    # "3511": {
-    #     "name": "Перт",
-    #     'StartField': 300,
-    #     'CurrentField': 0,
-    #     'counter': 0,
-    #     'taken': False
-    # },
+    "17590": {
+        "name": "Семаранг",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "17591": {
+        "name": "Пхукет",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "17592": {
+        "name": "Пекалонган",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "17593": {
+        "name": "Денпасар",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "15552": {
+        "name": "Бангкок",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "8809": {
+        "name": "Дели",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "8828": {
+        "name": "Лудхияна",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "8844": {
+        "name": "Джакарта",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "3511": {
+        "name": "Перт",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
     "1921": {
         "name": "Екатеринбург",
         'StartField': 300,
@@ -180,7 +183,114 @@ const_cities = {
         'counter': 0,
         'taken': False
     },
+    "14031": {
+        "name": "Майами",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "14149": {
+        "name": "Чикаго",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+
+    },
+    "14670": {
+        "name": "Нью-Йорк",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "15084": {
+        "name": "Филадельфия",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "15186": {
+        "name": "Хьюстон",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "12144": {
+        "name": "Амстердам",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "12204": {
+        "name": "Утрехт",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "12233": {
+        "name": "Делфт",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "12814": {
+        "name": "Краков",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "12816": {
+        "name": "Варшава",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "13112": {
+        "name": "Лиссабон",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "15939": {
+        "name": "Хельсинки",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "16130": {
+        "name": "Ницца",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "16492": {
+        "name": "Париж",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
+    "16675": {
+        "name": "Прага",
+        'StartField': 300,
+        'CurrentField': 0,
+        'counter': 0,
+        'taken': False
+    },
 }
+
 
 lock = threading.Lock()
 
@@ -203,11 +313,15 @@ def get_random_city(cities):
             if all(city['taken'] for city in cities.values()):
                 return 'All cities are taken'
 
+        with lock:
+            if all(city['counter'] >= city['StartField'] for city in cities.values()):
+                return 'No available city'
+
         random_key = random.choice(keys)
 
         with lock:
             city = cities[random_key]
-            if not city['taken']:
+            if not city['taken'] and city['counter'] < city['StartField']:
                 city['taken'] = True
                 return random_key, city
 
@@ -225,107 +339,93 @@ def emulate_clicks(city_id, city, proxy):
     chrome_option = Options()
     chrome_option.add_argument('--headless')
 
-    # seleniumwire_option = {
-    #     'proxy': {
-    #         'http': const_proxies[proxy]['url'],
-    #         'verify_ssl': False
-    #     }
-    # }
+    seleniumwire_option = {
+        'proxy': {
+            'http': const_proxies[proxy]['url'],
+            'verify_ssl': False
+        }
+    }
 
-    # print(seleniumwire_option)
-    # if time.time() - const_proxies[proxy]['when_change'] >= duration:
-    #     r_c = requests.get(url=f'https://mobileproxy.space/api.html?command=change_equipment&proxy_id={int(proxy)}&id_city={int(city_id)}',
-    #                        headers={'Authorization': 'Bearer f219619fcd8a27b7f8a5167b5426e7dd'})
-    #     const_proxies[proxy]['when_change'] = time.time()
-    #     response = r_c.json()
-    #     if 'error' in response or response['status'] == 'ERR':
-    #         return
+    print(seleniumwire_option)
+    if time.time() - const_proxies[proxy]['when_change'] >= duration:
+        r_c = requests.get(url=f'https://mobileproxy.space/api.html?command=change_equipment&proxy_id={int(proxy)}&id_city={int(city_id)}',
+                           headers={'Authorization': f"Bearer {config['api_key']}"})
+        const_proxies[proxy]['when_change'] = time.time()
+        response = r_c.json()
+        if 'error' in response or response['status'] == 'ERR':
+            return
 
     while time.time() - start_time < duration:
+        if check_pause_flag():
+            time.sleep(1)
+            continue
         with webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), chrome_options=chrome_option) as driver:
-            driver.get('http://45.90.218.129/')
+            driver.get(config['url'])
             time.sleep(5)
         with lock:
-            if city['counter'] < city['StartField']:  # TODO change to CurrField
+            if city['counter'] < city['CurrentField']:  # TODO change to CurrField
                 city['counter'] += 1
                 print(f'Click from {city}')
-            if city['counter'] >= city['StartField']:  # TODO change to CurrField
+            if city['counter'] >= city['CurrentField']:  # TODO change to CurrField
                 print('City reached limit')
                 break
         message = json.dumps({
             'city': city['name'],
             'clicks': city['counter'],
-            'allClicks': city['StartField'],
+            'allClicks': city['CurrentField'],
             'time': datetime.now(timezone(timedelta(hours=3))).isoformat()
         })
 
-        # asyncio.run(send_status('ws://localhost:8000', message))
+        asyncio.run(send_status('ws://localhost:8000', message))
 
-        # r_ip = requests.get(url=const_proxies[proxy]['change_ip'],
-        #                     headers={'User-Agent': 'Chrome/125.0.0.0'})
+        r_ip = requests.get(url=const_proxies[proxy]['change_ip'],
+                            headers={'User-Agent': 'Chrome/125.0.0.0'})
 
-        # print(r_ip.text)
+        print(r_ip.text)
+        current_config = current_interval_config()
+        time.sleep(random.randint(
+            interval_config[current_config]['delayFrom'], interval_config[current_config]['delayTo']))
 
-        time.sleep(random.randint(46, 53))
-
-        if True:  # TODO add cond
-            break
     with lock:
         if city['counter'] < city['StartField']:
             city['taken'] = False
 
 
 def worker():
+    proxy_result = get_random_proxy(const_proxies)
     while True:
-        proxy, proxy_info = get_random_proxy(const_proxies)
+        if check_pause_flag():
+            time.sleep(1)
+            continue
         result = get_random_city(const_cities)
         if isinstance(result, str):
             print(result)
             break
+        if isinstance(proxy_result, str):
+            print(proxy_result)
+            break
         else:
             selected_city_id, selected_city_details = result
+            proxy, proxy_info = proxy_result
             print(f'City id - {selected_city_id}')
             print(f'City details - {selected_city_details}')
 
         emulate_clicks(selected_city_id, selected_city_details, proxy)
 
-        with proxy_lock:
-            if True:  # TODO add cond
-                proxy_info['taken'] = False
+
+const_proxies = {}
 
 
-const_proxies = {
-    '264347': {
-        'url': 'http://ZEb5Ec:yH5fYn7tEWaK@cproxy.site:12938',
-        'when_change': 0,
-        'change_ip': 'https://changeip.mobileproxy.space/?proxy_key=980e772781bb8b7a16e451ba936d1564&format=json',
-        'taken': False
-    },
-    '264348': {
-        'url': 'http://ut3baE:YnEZmUXrUdgy@yproxy.site:13021',
-        'when_change': 0,
-        'change_ip': 'https://changeip.mobileproxy.space/?proxy_key=7f5dc59a8d5570d602b37b2699d037fd&format=json',
-        'taken': False
-    },
-    '264344': {
-        'url': 'http://TUj9UT:Er9YFeC5udNy@hproxy.site:11084',
-        'when_change': 0,
-        'change_ip': 'https://changeip.mobileproxy.space/?proxy_key=1cd18878b662fbc4aaab6afd572fb070&format=json',
-        'taken': False
-    },
-    '264345': {
-        'url': 'http://GaC6Ca:ZADEDhYW9AN6@wproxy.site:12734',
-        'when_change': 0,
-        'change_ip': 'https://changeip.mobileproxy.space/?proxy_key=7ab49ecb2fe213c1c19958ed091b5f01&format=json',
-        'taken': False
-    },
-    '264346': {
-        'url': 'http://Uh7ymN:CUBmyE6CAk4y@tproxy.site:12917',
-        'when_change': 0,
-        'change_ip': 'https://changeip.mobileproxy.space/?proxy_key=ddafff33b8fa56e04f8794e1aecfbb92&format=json',
-        'taken': False
-    },
-}
+def check_pause_flag():
+    response = requests.get(f"{API_URL}/config")
+    data = response.json()
+    return data['pause']
+
+
+def all_proxies():
+    response = requests.get(f"{API_URL}/proxies")
+    data = response.json()
+    return {item['id']: item for item in data}
 
 
 proxy_lock = threading.Lock()
@@ -359,26 +459,157 @@ def current_interval():
         return '00:00-09:00'
 
 
-def manage_threads():
-    websocket.enableTrace(True)
+def reset_cities(cities):
+    with lock:
+        for city in cities.values():
+            city['taken'] = False
+            city['counter'] = 0
+
+
+def current_interval_config():
     now = datetime.now(timezone(timedelta(hours=3)))
-    print(now.isoweekday())
+    if dt_time(9, 0) <= now.time() < dt_time(17, 0):
+        return '09:00-17:00'
+    elif dt_time(17, 0) <= now.time() < dt_time(0, 0):
+        if 4 <= now.isoweekday() <= 6:
+            return '17:00-00 inc'
+        else:
+            return '17:00-00:00'
+    elif dt_time(0, 0) <= now.time() < dt_time(3, 0):
+        if 5 <= now.isoweekday() <= 7:
+            return '00:00-03:00 inc'
+        else:
+            return '00:00-03:00'
+    else:
+        if 5 <= now.isoweekday() <= 7:
+            return '03:00-09:00 inc'
+        else:
+            return '03:00-09:00'
 
-    # proxies = requests.get('http://localhost:8000/proxies')
 
-    # print({item['id']: item for item in proxies.json()})
+def update_start_field(cities, config, current_interval_config):
+    with lock:
+        for city_id, new_value in config.items():
+            if city_id in cities:
+                cities[city_id]['StartField'] = current_interval_config['amountOfClicks'] * new_value
+                cities[city_id]['CurrentField'] = calculate_new_limit(
+                    cities[city_id]['StartField'])
 
-    threads = []
 
-    for i in range(2):
-        t = threading.Thread(target=worker,
-                             daemon=True)
-        threads.append(t)
-        t.start()
+def get_all_clicks(cities):
+    count = 0
+    allTarget = 0
+    for city in cities.values():
+        count += city['counter']
+        allTarget += city['CurrentField']
+    return count, allTarget
 
-    for i in threads:
-        i.join()
-    # print({item['id']: item for item in test})
+
+config = {}
+
+
+def get_config():
+    response = requests.get(API_URL+'/config')
+    return response.json()
+
+
+interval_config = {
+    '09:00-17:00': {
+        'threads': 2,
+        'amountOfClicks': 450,
+        'delayFrom': 60,
+        'delayTo': 180
+    },
+    '17:00-00:00': {
+        'threads': 5,
+        'amountOfClicks': 1800,
+        'delayFrom': 67,
+        'delayTo': 74
+    },
+    '17:00-00:00 inc': {
+        'threads': 5,
+        'amountOfClicks': 2500,
+        'delayFrom': 48,
+        'delayTo': 53
+    },
+    '00:00-03:00': {
+        'threads': 2,
+        'amountOfClicks': 240,
+        'delayFrom': 85,
+        'delayTo': 93
+    },
+    '03:00-09:00': {
+        'threads': 2,
+        'amountOfClicks': 160,
+        'delayFrom': 257,
+        'delayTo': 284
+    },
+    '00:00-03:00 inc': {
+        'threads': 2,
+        'amountOfClicks': 420,
+        'delayFrom': 49,
+        'delayTo': 54
+    },
+    '03:00-09:00 inc': {
+        'threads': 2,
+        'amountOfClicks': 280,
+        'delayFrom': 146,
+        'delayTo': 162
+    },
+}
+
+
+def manage_threads():
+
+    websocket.enableTrace(True)
+
+    active_threads = []
+    previous_interval = None
+
+    while True:
+        if check_pause_flag():
+            time.sleep(1)
+            continue
+
+        global config
+        config = get_config()
+
+        with proxy_lock:
+            global const_proxies
+            const_proxies = all_proxies()
+
+        interval = current_interval()
+        current_config = current_interval_config()
+
+        if interval != previous_interval:
+            reset_cities(const_cities)
+            update_start_field(
+                const_cities, click_config[interval], interval_config[current_config])
+            previous_interval = interval
+
+        now = datetime.now(timezone(timedelta(hours=3)))
+        if now.time() == dt_time(19, 0):
+            update_start_field(
+                const_cities, click_config["19:00"], interval_config[current_config])
+        if now.time() == dt_time(21, 0):
+            update_start_field(
+                const_cities, click_config["21:00"], interval_config[current_config])
+
+        desired_count = interval_config[current_config]['threads']
+
+        # Add threads if there are less than the desired count
+        while len(active_threads) < desired_count:
+            t = threading.Thread(
+                target=worker, name=f"Worker-{len(active_threads)+1}")
+            t.start()
+            active_threads.append(t)
+
+        # Remove threads if there are more than the desired count
+        while len(active_threads) > desired_count:
+            thread_to_stop = active_threads.pop()
+            thread_to_stop.join()
+
+        time.sleep(30)
 
 
 if __name__ == '__main__':
