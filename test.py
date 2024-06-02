@@ -337,7 +337,10 @@ def emulate_clicks(city_id, city, proxy):
     duration = 10 * 60
 
     chrome_option = Options()
+    chrome_option.add_argument('--no-sandbox')
     chrome_option.add_argument('--headless')
+    chrome_option.add_argument('--disable-gpu')
+    chrome_option.add_argument('--disable-dev-shm-usage')
 
     seleniumwire_option = {
         'proxy': {
@@ -359,7 +362,7 @@ def emulate_clicks(city_id, city, proxy):
         if check_pause_flag():
             time.sleep(1)
             continue
-        with webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), chrome_options=chrome_option) as driver:
+        with webdriver.Chrome(service=ChromeService('/usr/bin/chromedriver'), chrome_options=chrome_option, seleniumwire_options=seleniumwire_option) as driver:
             driver.get(config['url'])
             time.sleep(5)
         with lock:
