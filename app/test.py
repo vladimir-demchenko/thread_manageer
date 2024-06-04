@@ -1,10 +1,6 @@
 import time
 import random
 import threading
-from seleniumwire import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
 import websocket
 import json
 import asyncio
@@ -12,7 +8,7 @@ from datetime import datetime, time as dt_time, timezone, timedelta
 import requests
 from const import click_config
 
-API_URL = 'http://localhost:8000'
+API_URL = 'http://168.100.8.246:8000'
 
 const_cities = {
     '1': {
@@ -314,14 +310,14 @@ def get_random_city(cities):
                 return 'All cities are taken'
 
         with lock:
-            if all(city['counter'] >= city['StartField'] for city in cities.values()):
+            if all(city['counter'] >= city['CurrentField'] for city in cities.values()):
                 return 'No available city'
 
         random_key = random.choice(keys)
 
         with lock:
             city = cities[random_key]
-            if not city['taken'] and city['counter'] < city['StartField']:
+            if not city['taken'] and city['counter'] < city['CurrentField']:
                 city['taken'] = True
                 return random_key, city
 
@@ -336,53 +332,48 @@ def emulate_clicks(city_id, city, proxy):
     start_time = time.time()
     duration = 10 * 60
 
-    chrome_option = Options()
-    chrome_option.add_argument('--no-sandbox')
-    chrome_option.add_argument('--headless')
-    chrome_option.add_argument('--disable-gpu')
-    chrome_option.add_argument('--disable-dev-shm-usage')
-
-    seleniumwire_option = {
-        'proxy': {
-            'http': const_proxies[proxy]['url'],
-            'verify_ssl': False
-        }
+    proxies = {
+        'http': const_proxies[proxy]['url'],
     }
 
-    print(seleniumwire_option)
+    print(proxies)
     if time.time() - const_proxies[proxy]['when_change'] >= duration:
         r_c = requests.get(url=f'https://mobileproxy.space/api.html?command=change_equipment&proxy_id={int(proxy)}&id_city={int(city_id)}',
                            headers={'Authorization': f"Bearer {config['api_key']}"})
         const_proxies[proxy]['when_change'] = time.time()
         response = r_c.json()
-        if 'error' in response or response['status'] == 'ERR':
+        print(response)
+        if 'error' in response or response['status'] == 'err':
             return
 
     while time.time() - start_time < duration:
         if check_pause_flag():
             time.sleep(1)
             continue
-        with webdriver.Chrome(service=ChromeService('/usr/bin/chromedriver'), chrome_options=chrome_option, seleniumwire_options=seleniumwire_option) as driver:
-            driver.get(config['url'])
-            time.sleep(5)
+        click = requests.get(url=config['url'],
+                             headers={'User-Agent': 'Chrome/125.0.0.0'}, proxies=proxies)
+        print(click.status_code)
         with lock:
             if city['counter'] < city['CurrentField']:  # TODO change to CurrField
                 city['counter'] += 1
                 print(f'Click from {city}')
-            if city['counter'] >= city['CurrentField']:  # TODO change to CurrField
+            elif city['counter'] >= city['CurrentField']:  # TODO change to CurrField
                 print('City reached limit')
                 break
+        clicks, allClicks = get_all_clicks(const_cities)
         message = json.dumps({
             'city': city['name'],
-            'clicks': city['counter'],
-            'allClicks': city['CurrentField'],
+            'cityClicks': city['counter'],
+            'allCityClicks': city['CurrentField'],
+            'clicks': clicks,
+            'allClicks': allClicks,
             'time': datetime.now(timezone(timedelta(hours=3))).isoformat()
         })
 
-        asyncio.run(send_status('ws://localhost:8000', message))
+        asyncio.run(send_status('ws://168.100.8.246:8000/', message))
 
-        r_ip = requests.get(url=const_proxies[proxy]['change_ip'],
-                            headers={'User-Agent': 'Chrome/125.0.0.0'})
+        r_ip = requests.get(url=const_proxies[proxy]['change_ip']+'&format=json',
+                            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'})
 
         print(r_ip.text)
         current_config = current_interval_config()
@@ -469,13 +460,22 @@ def reset_cities(cities):
             city['counter'] = 0
 
 
+def get_all_clicks(cities):
+    count = 0
+    target = 0
+    with lock:
+        for city in cities.values():
+            count += city['counter']
+            target += city['CurrentCity']
+
+
 def current_interval_config():
     now = datetime.now(timezone(timedelta(hours=3)))
     if dt_time(9, 0) <= now.time() < dt_time(17, 0):
         return '09:00-17:00'
     elif dt_time(17, 0) <= now.time() < dt_time(0, 0):
         if 4 <= now.isoweekday() <= 6:
-            return '17:00-00 inc'
+            return '17:00-00:00 inc'
         else:
             return '17:00-00:00'
     elif dt_time(0, 0) <= now.time() < dt_time(3, 0):
@@ -568,6 +568,7 @@ def manage_threads():
 
     active_threads = []
     previous_interval = None
+    previous_config = None
 
     while True:
         if check_pause_flag():
@@ -583,20 +584,24 @@ def manage_threads():
 
         interval = current_interval()
         current_config = current_interval_config()
+        print(interval, current_config)
 
-        if interval != previous_interval:
+        if interval != previous_interval and current_config != previous_config:
             reset_cities(const_cities)
             update_start_field(
                 const_cities, click_config[interval], interval_config[current_config])
             previous_interval = interval
+            previous_config = current_config
 
         now = datetime.now(timezone(timedelta(hours=3)))
-        if now.time() == dt_time(19, 0):
+        if now.time() >= dt_time(19, 0) and current_config != previous_config:
             update_start_field(
                 const_cities, click_config["19:00"], interval_config[current_config])
-        if now.time() == dt_time(21, 0):
+            previous_config = current_config
+        if now.time() >= dt_time(21, 0) and current_config != previous_config:
             update_start_field(
                 const_cities, click_config["21:00"], interval_config[current_config])
+            previous_config = current_config
 
         desired_count = interval_config[current_config]['threads']
 
